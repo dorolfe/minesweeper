@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <!-- Last edit: 2022/11/15 -->
+    <meta charset="utf-8">
+    <title>Serious Business</title>
+
+    <style id="defaultColors">
+        body,
+        .bodyBG {
+            background-color: #444;
+        }
+
+        body,
+        .bodyFG {
+            color: white;
+        }
+
+
+        .buttonsBG,
+        input[type="submit"],
+        option,
+        select {
+            background-color: #565;
+            border-color: #676;
+            color: silver;
+        }
+
+        fieldset legend {
+            background-color: #666F66;
+            border: solid 1px gray;
+            color: silver;
+        }
+
+        fieldset {
+            border: solid 1px gray;
+        }
+
+
+        table,
+        tbody,
+        td,
+        th,
+        thead {
+            border-color: gray;
+            background-color: #666F66;
+        }
+
+        button:hover,
+        input:hover,
+        select:hover {
+            box-shadow: 0px 0px 10px lime;
+        }
+
+        a,
+        a:visited {
+            color: rgb(81, 202, 188);
+        }
+
+        a:active,
+        a:hover {
+            color: lime;
+        }
+
+        #board td:hover {
+            box-shadow: inset 0px 0px 5px 5px limegreen;
+        }
+
+        #board td.flag:hover {
+            box-shadow: inset 0px 0px 5px 5px purple;
+        }
+
+        .hint {
+            background-color: #445258;
+        }
+
+        #board td.hint:hover {
+            box-shadow: inset 0px 0px 5px 5px silver;
+        }
+
+        #nothing td.flag {
+            box-shadow: inset 0px 0px 6px 6px #666F66;
+            background-color: darkred;
+        }
+    </style>
+
+    <!-- no color definintions should be in this stylesheet -->
+    <style id="defaultLayout">
+        body {
+            font-family: "Lato Medium", "Liberation Sans", Arial, Calibri, Tahoma, sans-serif;
+            font-size: 18px;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        button,
+        input[type="submit"] {
+            height: 32px;
+            margin: 1px;
+        }
+
+        input[type=range] {
+            width: 250px;
+        }
+
+        button,
+        input[type="submit"],
+        option,
+        select {
+            border-radius: 4px;
+            margin: 1px;
+        }
+
+
+        hr {
+            clear: both;
+            border-width: 0px;
+            border-top-width: 0.05em;
+            border-top-style: solid;
+        }
+
+
+        table,
+        td,
+        th,
+        thead,
+        tbody {
+            text-align: center;
+            padding: 3px;
+            margin: 2px;
+            border-style: solid;
+            border-width: 1px;
+            border-spacing: 2px;
+            line-height: 1.2em;
+            font-family: monospace;
+        }
+
+
+        /* no pref always dark shadow */
+        .dismiss,
+        .disActive {
+            box-shadow: 3px 3px 8px rgba(0, 0, 0, .35);
+        }
+
+        fieldset {
+            border-radius: 10px;
+            padding: 6px;
+        }
+
+        fieldset legend {
+            text-align: left;
+            text-align: left;
+            border-radius: 8px;
+            border-style: solid;
+            border-width: 2px;
+            padding: 5px;
+            padding-bottom: 3px;
+            padding-top: 3px;
+            line-height: 1rem;
+        }
+
+
+
+        /* no pref to dimmer */
+        #blocker {
+            position: absolute;
+            right: 0px;
+            z-index: 4;
+            width: 100vw;
+            height: 200vw;
+            background: black;
+            opacity: 0.7;
+            top: 0px;
+            display: none;
+        }
+
+        div.board {
+            align-content: center;
+            align-items: center;
+            border: solid 1px gray;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 6px;
+        }
+
+        table#board {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        div.status {
+            margin-top: 16px;
+            margin-bottom: 16px;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            font-family: monospace;
+            border: solid 1px gray;
+            padding: 10px;
+        }
+
+        #output,
+        #score,
+        #timer {
+            /* text-align: center; */
+            height: 26px;
+            display: inline-block;
+            border: 1px dotted red;
+
+        }
+
+        #output {
+            width: auto;
+            align-self: stretch;
+        }
+
+        #score {
+            width: 100px;
+            align-self: flex-start;
+            text-align: left;
+        }
+
+        #timer {
+            width: 100px;
+            align-self: flex-end;
+            text-align: right;
+        }
+
+        #board td,
+        td.hint {
+            height: 22px;
+            width: 25px;
+
+        }
+
+        tr.hint {
+            display: none;
+        }
+
+        td.hc {
+            border: 1px solid #89d8fb;
+        }
+
+        p {
+            text-align: center;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <fieldset id="parameters">
+        <legend>&#x1F4A3;&#x1F9f9;&#x1F4A5; minesweeper</legend>
+
+        <P>My version of minesweeper uses one click and wants to be fair.</P>
+
+        <p> Maybe it will be an iOS app one day. </p>
+
+        <p>There's no license for this code until further notice.</p>
+
+        <p>The latest version is <a href="mines3.html">minesweeper v3</a></p>
+    </fieldset>
+
+
+</body>
+
+</html>

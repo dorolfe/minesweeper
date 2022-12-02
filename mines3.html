@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
-<!-- Last edit: 2022/11/15 -->
+<!-- Last edit: 2022/12/01 -->
 <meta charset="utf-8">
 <title>Serious Business</title>
 
@@ -188,29 +188,31 @@ table#board {
 }
 
 div.status { 
-	border: 1px solid red;
+	padding: 10px;
+	height: 38px;
 	margin-top: 16px;
 	margin-bottom: 16px; 
 	justify-content: center;
 	align-items: center;
+	font-family: monospace; 
+	border-radius: 10px;
+	border: solid 1px gray;
 }
 
 #output, 
 #score, 
 #timer {
-	border-radius: 10px;
-	font-family: monospace; 
-	border: solid 1px gray;
-	padding: 10px;
 	/* text-align: center; */
 	height: 26px;
 	display: inline-block;
-	
+	border: 0px dotted red;
 }
 
-#output { width: auto; align-self: stretch; }
-#score { width: 100px; align-self: left; text-align: left; }
-#timer { width: 100px; align-self: right; text-align: right; }
+#output { width: calc(100% - 228px); align-self: stretch; text-align: center;}
+#score, #timer {font-size: smaller;}
+
+#score { width: 100px; align-self: flex-start; text-align: left;  }
+#timer { width: 100px; align-self: flex-end; text-align: right; }
 
 #board td, td.hint {
 	height: 22px;
@@ -413,6 +415,8 @@ function newBoard() {
 		newTR.className = 'hint';
 		board.appendChild(newTR);
 	}
+	seconds = 0;
+	timerStart = true;
 }
 
 
@@ -420,8 +424,9 @@ function cellClick(event) {
 	const isMine = allMines[this.id.split('c')[1]*1-1];
 	
 	if (isMine == -1) { //You clicked a bomb!!
+		timerStart = false;
 		document.querySelectorAll('#board td').forEach( (td) => { td.removeEventListener('click', cellClick, false) });
-		this.innerHTML = "X";
+		//this.innerHTML = "X";
 		this.innerHTML = bomb;
 		setTimeout( () => {
 			this.innerHTML = explosion; //explosion
@@ -455,6 +460,7 @@ function checkWinConditions() {
 	
 	//win state!
 	if ((waveCount+flagCount) == mines) {
+		timerStart = false;
 		document.querySelectorAll('#board td').forEach( (td) => { td.removeEventListener('click', cellClick, false) });
 		output.style.display = 'inline-block';
 		output.innerHTML = "WOO! You did it!" + bomb + broom + grats;
@@ -723,12 +729,16 @@ function getby(id) { //tired of typing this
 }
 
 
-function myMain(cruft) { //this is not in use...
+function myMain() { 
     const time = new Date(Date.now());
-    const seconds = time.getSeconds();
-    const minutes = time.getMinutes();
-    const hour = time.getHours();
-    return true;
+    //const seconds = time.getSeconds();
+    //const minutes = time.getMinutes();
+    //const hour = time.getHours();
+    if (timerStart) { 
+		getby('t1').innerHTML = seconds.toString();
+		if (document.hasFocus()) { seconds++; }
+	}
+	return true;
 }
 
 
@@ -769,7 +779,7 @@ function bloop2(ac, pitch, volume) { //plays a pleasant tone
     lfo.start(); //connected to amp to osc so only osc has to stop
     osc.start();
     osc.stop(ac.currentTime + beepLength);
-} //bloop2
+} 
 
 //init ////////////////////////////////////////////////////
 
@@ -781,6 +791,9 @@ var mines = 1;
 var hints = 0;
 var score = 0;
 var seconds = 1;
+var timerStart = false;
+const oneSecond = 1000;
+const oneMinute = oneSecond * 60;
 const showHints = true;
 const colors = ['#67E', 'lightskyblue', 'aquamarine', 'palegreen', 'khaki', 'lightsalmon', 'lightcoral', 'plum', 'orchid'];
 const bomb = "&#x1F4A3;";
@@ -796,20 +809,15 @@ const ac = new AudioContext();
 var pitch = 440;
 
 
-//setTimeout(loadColorScheme,60,init);
 
 //Event loop //////////////////////////////////////////////
-if (0) { // not in use...
-    const oneSecond = 1000;
-    const oneMinute = oneSecond * 60;
+if (1) { 
+	const IDforTimer = setInterval(myMain, oneSecond * 1, false);
 
-    while (true || queue.waitForMessage()) {
-        const IDforTimer = setInterval(myMain, oneSecond * 1, debug('main interval'));
-        const IDfornextTask = setInterval(nextTask, oneSecond * 10, debug('slower interval'), false);
-
-
-        queue.processNextMessage();
-    }
+    //while (true || queue.waitForMessage()) {
+        //const IDfornextTask = setInterval(nextTask, oneSecond * 10, debug('slower interval'), false);
+    //    queue.processNextMessage();
+    //}
 }
 
 //end
