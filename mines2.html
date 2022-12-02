@@ -5,8 +5,6 @@
 <meta charset="utf-8">
 <title>Serious Business</title>
 
-<!-- if(0) { //hiding styles -->
-
 <style id="defaultColors">
 body, .bodyBG {
     background-color: #444;
@@ -16,13 +14,6 @@ body, .bodyFG {
     color: white;
 }
 
-small {
-    color: #777;
-}
-
-small#countdown, .countFG {
-    color: #0b3;
-}
 
 .buttonsBG,
 input[type="submit"],
@@ -77,16 +68,23 @@ a:hover {
 }
 
 .hint  { background-color: #445258; }
+
 #board td.hint:hover {
 	box-shadow: inset 0px 0px 5px 5px silver;
+}
+
+#nothing td.flag { 
+	box-shadow: inset 0px 0px 6px 6px #666F66;
+	background-color: darkred;
+}
 
 </style>
- 
+
+<!-- no color definintions should be in this stylesheet -->
 <style id="defaultLayout"> 
-/* no color declaration below */
+
 body {
-    font-family: "Lato Medium", "Liberation Sans", Arial, Calibri, Tahoma,
-    sans-serif;
+    font-family: "Lato Medium", "Liberation Sans", Arial, Calibri, Tahoma, sans-serif;
     font-size: 18px;
 }
 
@@ -189,17 +187,30 @@ table#board {
 	margin-right: auto;
 }
 
-#output {
+div.status { 
+	border: 1px solid red;
+	margin-top: 16px;
+	margin-bottom: 16px; 
+	justify-content: center;
+	align-items: center;
+}
+
+#output, 
+#score, 
+#timer {
 	border-radius: 10px;
 	font-family: monospace; 
 	border: solid 1px gray;
 	padding: 10px;
-	text-align: center;
+	/* text-align: center; */
 	height: 26px;
-	margin-top: 22px;
-	margin-bottom: 22px;
+	display: inline-block;
 	
 }
+
+#output { width: auto; align-self: stretch; }
+#score { width: 100px; align-self: left; text-align: left; }
+#timer { width: 100px; align-self: right; text-align: right; }
 
 #board td, td.hint {
 	height: 22px;
@@ -214,10 +225,8 @@ td.hc { border: 1px solid #89d8fb; }
 
 </style>
 
-<!-- } // end styles -->
-
 </head>
-<!-- if(0) { //hiding body -->
+
 <body>
  
         <fieldset id="parameters">
@@ -232,12 +241,15 @@ td.hc { border: 1px solid #89d8fb; }
                 <li><input type="radio" name="difficulty" id=w7 onchange="radio(this)"><label for=w7>Expert</label> (30 x 16 x 99)</li>
 				<li><input type="radio" name="difficulty" id=w8 onchange="radio(this)"><label for=w8>Pro</label> (40 x 20 x 190)</li>
 			</ul>
-			<button style="margin-left: 0px;" id="b1" onclick="newBoard()">Generate</button>
+			<button style="margin-left: 0px;" id="b1" onclick="newBoard()">Generate new minefield</button>
         </fieldset>
 
 
-	<div id="output"></div>
-	
+<div class="status">
+	<span id="score">Score: <span id="s1">0</span></span>
+	<span id="output"></span>
+	<span id="timer"><span id="t1">0</span> sec.</span>
+</div>
 	
 <div class="board">
 	<table id="board">
@@ -324,7 +336,7 @@ function newBoard() {
 	mines = Math.round(width * height * satur / 100); if (mines == 0) { mines = 1; }
 	const board = getby('board');	
 	
-	output.style.display = 'block';
+	output.style.display = 'inline-block';
 	output.innerHTML = '';
 	getby('settings').style.display = 'none';
 	getby('L1').innerHTML = 'Click for Settings';
@@ -414,7 +426,7 @@ function cellClick(event) {
 		setTimeout( () => {
 			this.innerHTML = explosion; //explosion
 		}, 1000);
-		output.style.display = 'block';
+		output.style.display = 'inline-block';
 		output.innerHTML = explosion + "BOOM! You lost!" + explosion;
 		setTimeout(revealBoard, 2000);
 	}
@@ -425,30 +437,31 @@ function cellClick(event) {
 		if (this.innerHTML === '0') { 
 			recursiveClear(adjacentTo(id2index(this.id)));
 		} else {  markFlags(this.innerHTML, adjacentTo(id2index(this.id))); }
-		
-		//check win conditions
-		let waveCount = 0;
-		let flagCount = 0;
-		document.querySelectorAll('#board td').forEach((td)=>{
-			if (td.innerHTML == String.fromCodePoint(0x1F30A)) { waveCount++; } //unmarked waves
-			if (td.innerHTML == String.fromCodePoint(0x1F6A9)) { flagCount++; } //red flags
-		});
-		
-		//status update
-		output.innerHTML = "There are  " + (mines-flagCount).toString() + " mines in " + waveCount + " spaces.<br/>";
-		
-		//win state!
-		if ((waveCount+flagCount) == mines) {
-			document.querySelectorAll('#board td').forEach( (td) => { td.removeEventListener('click', cellClick, false) });
-			output.style.display = 'block';
-			output.innerHTML = "WOO! You did it!" + bomb + broom + grats;
-			setTimeout(revealBoard, 1);
-			setTimeout(flagMines, 100);
-		}
-		
+	
+		checkWinConditions();
 	}
 }
 
+function checkWinConditions() {
+	let waveCount = 0;
+	let flagCount = 0;
+	document.querySelectorAll('#board td').forEach((td)=>{
+		if (td.innerHTML == String.fromCodePoint(0x1F30A)) { waveCount++; } //unmarked waves
+		if (td.innerHTML == String.fromCodePoint(0x1F6A9)) { flagCount++; } //red flags
+	});
+	
+	//status update
+	output.innerHTML = "There are  " + (mines-flagCount).toString() + " mines in " + waveCount + " spaces.<br/>";
+	
+	//win state!
+	if ((waveCount+flagCount) == mines) {
+		document.querySelectorAll('#board td').forEach( (td) => { td.removeEventListener('click', cellClick, false) });
+		output.style.display = 'inline-block';
+		output.innerHTML = "WOO! You did it!" + bomb + broom + grats;
+		setTimeout(revealBoard, 1);
+		setTimeout(flagMines, 100);
+	}
+}
 
 function index2id(i) { i++; return 'c' + i; }
 function id2index(i) { return Number(i.split('c')[1]-1); }
@@ -494,7 +507,10 @@ function mineSweep(id) {
 	const cell = getby(id);
 	const mineCount = allMines[index];
 	
-	if (mineCount == 0) { cell.removeEventListener('click', cellClick, false); }
+	if (mineCount == 0) {
+		cell.removeEventListener('click', cellClick, false);
+		//cell.style.backgroundColor = '#596773'; 
+	}
 	//cell.removeEventListener('click', cellClick, false);
 	cell.style.color = colors[mineCount];
 	cell.className = '';
@@ -560,6 +576,7 @@ function revealBoard(id) {
 		const index = id.split('c')[1]*1-1;
 		if (allMines[index] == -1) {
 			getby(id).innerHTML = bomb;
+			//getby(id).innerHTML = check;
 		} else { 
 			mineSweep(id);
 		}
@@ -576,7 +593,7 @@ function flagMines() {
 	for (let i=0; i < allMines.length; i++) {
 		if (allMines[i] == -1) { 
 			setTimeout( () => {
-				getby('c'+(i*1+1)).innerHTML = flag;
+				getby('c'+(i*1+1)).innerHTML = check;
 			}, Math.floor(350+i*1.5));
 		}
 	}
@@ -600,6 +617,7 @@ function getMoreHints() {
 			}
 			getby('hy' + (x+1).toString()).innerHTML = mineCount.toString();
 			getby('hy' + (x+1).toString()).style.color = colors[(mineCount<9)?mineCount:8];
+			getby('hy' + (x+1).toString()).addEventListener('click', hintClear, false);
 		}
 
 		for (let y = 0; y < height; y++) {
@@ -609,6 +627,7 @@ function getMoreHints() {
 			}
 			getby('hx' + y.toString()).innerHTML = mineCount.toString();
 			getby('hx' + y.toString()).style.color = colors[(mineCount<9)?mineCount:8];
+			getby('hx' + y.toString()).addEventListener('click', hintClear, false);
 		}
 		//deduct more clues score
 	}
@@ -641,9 +660,63 @@ function getMoreHints() {
 		document.querySelectorAll('#board td.hc').forEach((TD)=>{TD.className = '';});
 		getby(theHint).className = 'hc';
 		setTimeout(()=>{getby(theHint).className='';},550);
+
+		checkWinConditions();
 	}	
 }
 
+
+function hintClear(event) {
+	let y = this.id.split('hx')[1]*1;
+	let x = this.id.split('hy')[1]*1-1;
+	let mineCount = 0;
+	let flagCount = 0;
+	let waves = [];
+
+	//for  (let i = 0; i < (this.id[1]==='x')?width:height; i++) { let index = (this.id[1]==='x')?y*width + i:i*width + x; }
+	if (this.id[1] === 'x') { 
+		for (let i = 0; i<width ; i++) { 
+			let index = y*width + i;
+			let id = index2id(index);
+			
+			if (allMines[index] == -1) { mineCount++; }
+			if (getby(id).innerHTML === String.fromCodePoint(0x1F6A9)) { flagCount++; }
+			if (getby(id).innerHTML === String.fromCodePoint(0x1F30A)) { 
+				waves.push(id);
+			}
+		}
+	}
+	
+	if (this.id[1] === 'y') { 
+		for (let i = 0; i < height ; i++) { 
+			let index = i*width + x;
+			let id = index2id(index);
+			
+			if (allMines[index] == -1) { mineCount++; }
+			if (getby(id).innerHTML === String.fromCodePoint(0x1F6A9)) { flagCount++; }
+			if (getby(id).innerHTML === String.fromCodePoint(0x1F30A)) { 
+				waves.push(id);
+			}
+		}
+	}
+	
+	if (this.innerHTML === '0' || mineCount === flagCount) { //you'll only need to do this once for zeros
+		this.removeEventListener('click', hintClear, false);
+		waves.forEach ((id)=>{
+			mineSweep(id);
+		});
+	} else if (waves.length + flagCount === mineCount) { //every wave is a mine!
+		this.removeEventListener('click', hintClear, false);
+		waves.forEach ((id)=>{
+			let cell = getby(id);
+			cell.innerHTML = flag;
+			cell.className = 'flag';
+			cell.removeEventListener('click', cellClick, false);
+		});
+	}
+
+	checkWinConditions();
+}
 
 function getby(id) { //tired of typing this
 	if (id != '') { return document.getElementById(id); }
@@ -709,13 +782,14 @@ var hints = 0;
 var score = 0;
 var seconds = 1;
 const showHints = true;
-const colors = ['blue', 'lightskyblue', 'aquamarine', 'palegreen', 'khaki', 'lightsalmon', 'lightcoral', 'plum', 'orchid'];
+const colors = ['#67E', 'lightskyblue', 'aquamarine', 'palegreen', 'khaki', 'lightsalmon', 'lightcoral', 'plum', 'orchid'];
 const bomb = "&#x1F4A3;";
 const explosion = "&#x1F4A5;";
 const wave = "&#x1F30A;";
 const flag = "&#x1F6A9;";
 const grats = "&#x1F389;";
 const broom = "&#x1F9f9;";
+const check = "&#x2705;";
 
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const ac = new AudioContext();
