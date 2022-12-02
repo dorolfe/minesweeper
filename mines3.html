@@ -242,6 +242,7 @@ td.hc { border: 1px solid #89d8fb; }
                 <li><input type="radio" name="difficulty" id=w6 onchange="radio(this)"><label for=w6>Advanced</label> (24 x 15 x 72)</li>
                 <li><input type="radio" name="difficulty" id=w7 onchange="radio(this)"><label for=w7>Expert</label> (30 x 16 x 99)</li>
 				<li><input type="radio" name="difficulty" id=w8 onchange="radio(this)"><label for=w8>Pro</label> (40 x 20 x 190)</li>
+				<li><input type="radio" name="difficulty" id=w9 onchange="radio(this)"><label for=w9>iPhone</label> (11 x 17, doesn't alter Saturation)</li>
 			</ul>
 			<button style="margin-left: 0px;" id="b1" onclick="newBoard()">Generate new minefield</button>
         </fieldset>
@@ -315,6 +316,13 @@ function radio(input) {
 			height.value = 20;
 			area = width.value * height.value;
 			satur.value = (190 * 100) / area
+		break;
+
+		case 'w9': //iphone don't set mines, should keep previous saturation.
+			width.value = 11;
+			height.value = 17;
+			area = width.value * height.value;
+			//satur.value = (190 * 100) / area
 		break;
 	}
 }
