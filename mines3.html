@@ -189,7 +189,7 @@ table#board {
 
 div.status { 
 	padding: 10px;
-	height: 38px;
+	x-height: 38px;
 	margin-top: 16px;
 	margin-bottom: 16px; 
 	justify-content: center;
@@ -202,10 +202,10 @@ div.status {
 #output, 
 #score, 
 #timer {
-	/* text-align: center; */
-	height: 26px;
+	x-text-align: center;
+	x-height: 26px;
 	display: inline-block;
-	border: 0px dotted red;
+	border: 0px dashed red;
 }
 
 #output { width: calc(100% - 228px); align-self: stretch; text-align: center;}
@@ -251,7 +251,7 @@ td.hc { border: 1px solid #89d8fb; }
 <div class="status">
 	<span id="score">Score: <span id="s1">0</span></span>
 	<span id="output"></span>
-	<span id="timer"><span id="t1">0</span> sec.</span>
+	<span id="timer"><span id="t1">0</span> sec</span>
 </div>
 	
 <div class="board">
@@ -471,7 +471,7 @@ function checkWinConditions() {
 		timerStart = false;
 		document.querySelectorAll('#board td').forEach( (td) => { td.removeEventListener('click', cellClick, false) });
 		output.style.display = 'inline-block';
-		output.innerHTML = "WOO! You did it!" + bomb + broom + grats;
+		output.innerHTML = "WOO! You did it! <nobr>" + bomb + broom + grats +"</nobr>";
 		setTimeout(revealBoard, 1);
 		setTimeout(flagMines, 100);
 	}
