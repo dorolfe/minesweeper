@@ -203,7 +203,7 @@ table#board {
 
 div.status { 
 	padding: 10px;
-	x-height: 38px;
+	height: 28px;
 	margin-top: 16px;
 	margin-bottom: 16px; 
 	justify-content: center;
@@ -217,7 +217,7 @@ div.status {
 #score, 
 #timer {
 	x-text-align: center;
-	x-height: 26px;
+	height: 26px;
 	display: inline-block;
 	border: 0px dashed red;
 }
@@ -266,7 +266,7 @@ tr.hint { display: none; }
 
 
 <div class="status">
-	<span id="score">Score: <span id="s1">0</span></span>
+	<span id="score"><span id="s1">0</span> pts</span>
 	<span id="output"></span>
 	<span id="timer"><span id="t1">0</span> sec</span>
 </div>
@@ -357,6 +357,8 @@ function outputAllMines() { // for debug...
 
 
 function newBoard() { 
+	score = 0;
+	seconds = 0;
 	width = getby('w1').value;
 	height = getby('w2').value;
 	const satur = getby('w3').value;
@@ -367,7 +369,8 @@ function newBoard() {
 	output.innerHTML = '';
 	getby('settings').style.display = 'none';
 	getby('L1').innerHTML = 'Click for Settings';
-	
+	getby('s1').innerHTML = '0';
+	getby('t1').innerHTML = '0';
 	
 	
 	allMines = []; 
@@ -379,7 +382,6 @@ function newBoard() {
 			var randIndex = Math.floor(Math.random() * allMines.length);		
 		    if (allMines[randIndex] == 0 ) { 
 				allMines[randIndex] = -1;
-				//console.log()
 				break;
 			} else { console.log("collision"); }
 		}
@@ -396,7 +398,7 @@ function newBoard() {
 		}
 	}
 	
-	console.log(allMines);
+	//console.log(allMines);
 
 	output.innerHTML = "There are  " + mines + " mines in " + allMines.length + " spaces.<br/>";
 	//outputAllMines();
@@ -439,8 +441,14 @@ function newBoard() {
 		}
 		newTR.className = 'hint';
 		board.appendChild(newTR);
+		
+		console.log('New board! \nRatio', width * height / mines,', ', Math.round((mines/(width*height))*100), '% mines' );
+		if ((width * height / mines) <= 4.21) { //harder than pro gets row clues automatically
+			getMoreHints();
+		}
 	}
-	seconds = 0;
+
+	points('new');
 	timerStart = true;
 }
 
@@ -449,18 +457,27 @@ function cellClick(event) {
 	const isMine = allMines[this.id.split('c')[1]*1-1];
 	
 	if (isMine == -1) { //You clicked a bomb!!
+		points('boom');
 		timerStart = false;
 		document.querySelectorAll('#board td').forEach( (td) => { td.removeEventListener('click', cellClick, false) });
 		//this.innerHTML = "X";
 		this.innerHTML = bomb;
-		setTimeout( () => {
-			this.innerHTML = explosion; //explosion
-		}, 1000);
+		
+		setTimeout( () => { this.innerHTML = explosion; }, 1000);
+		setTimeout(revealBoard, 2250);
+		
 		output.style.display = 'inline-block';
 		output.innerHTML = explosion + "BOOM! You lost!" + explosion;
-		setTimeout(revealBoard, 2000);
+	
+		logScores('boom');
+		
+	
 	}
 	else {
+		if (this.innerHTML == String.fromCodePoint(0x1F30A)) { //points for being right when you click a wave
+			points(isMine);
+		}
+		
 		//count all the mines around this and display that number
 		mineSweep(this.id);
 		
@@ -471,6 +488,16 @@ function cellClick(event) {
 		checkWinConditions();
 	}
 }
+
+function logScores(winorlose){
+		const rating = Math.round((mines/(width*height))*100);
+		
+		scoreHistory.values.push(score);
+		scoreHistory.difficulty.push(`${(winorlose==='win')?'completed':'failed'} ${width}x${height}x${mines} rating ${rating}`);
+		
+		console.log(scoreHistory);
+}
+
 
 function checkWinConditions() {
 	let waveCount = 0;
@@ -485,14 +512,19 @@ function checkWinConditions() {
 	
 	//win state!
 	if ((waveCount+flagCount) == mines) {
+		points('winning!');
 		timerStart = false;
+		
 		document.querySelectorAll('#board td').forEach( (td) => { td.removeEventListener('click', cellClick, false) });
 		output.style.display = 'inline-block';
 		output.innerHTML = "WOO! You did it! <nobr>" + bomb + broom + grats +"</nobr>";
 		setTimeout(revealBoard, 1);
 		setTimeout(flagMines, 100);
+		
+		logScores('win');
 	}
 }
+
 
 function index2id(i) { i++; return 'c' + i; }
 function id2index(i) { return Number(i.split('c')[1]-1); }
@@ -542,7 +574,9 @@ function mineSweep(id) {
 		cell.removeEventListener('click', cellClick, false);
 		//cell.style.backgroundColor = '#596773'; 
 	}
-	//cell.removeEventListener('click', cellClick, false);
+	
+	if (cell.className === 'hc') { points('dilemma cleared'); } //bonus for solving a blocking pair
+	
 	cell.style.color = colors[mineCount];
 	cell.className = '';
 	cell.innerHTML = mineCount.toString();
@@ -579,14 +613,13 @@ function markFlags(count, neighbors) {
 				cell.innerHTML = flag;
 				cell.className = 'flag';
 				cell.removeEventListener('click', cellClick, false);
+				points('flagged');
 			}
 		}
 	}
 	
-	if ((mineCount-flagCount == 1) && (waveCount == 2)) { //one mine in two squares
-		//output.innerHTML += " (50-50 situation at last click, take a hint?)";
-		//console.log('2 waves 1 mine');
-		for (const i of neighbors) { //mark these waves as hint candidates
+	if ((mineCount-flagCount == 1) && (waveCount == 2)) { //dilemma
+		for (const i of neighbors) {
 			if (getby(index2id(i)).innerHTML == String.fromCodePoint(0x1F30A)) { getby(index2id(i)).className = 'hc'; }
 		}
 	
@@ -602,17 +635,17 @@ function markFlags(count, neighbors) {
 	}
 }
 
+
 function revealBoard(id) {
 	if (id) {
 		const index = id.split('c')[1]*1-1;
 		if (allMines[index] == -1) {
 			getby(id).innerHTML = bomb;
-			//getby(id).innerHTML = check;
 		} else { 
 			mineSweep(id);
 		}
 	} else {
-		console.log("Full board reveal!");
+		//console.log("Full board reveal!");
 		const TDs = document.querySelectorAll('#board td')
 		TDs.forEach( (cell) => {
 			if (cell.className !='hint') { revealBoard(cell.id); }
@@ -620,7 +653,8 @@ function revealBoard(id) {
 	}
 }
 
-function flagMines() {
+
+function flagMines() { //you won, show where the mines were
 	for (let i=0; i < allMines.length; i++) {
 		if (allMines[i] == -1) { 
 			setTimeout( () => {
@@ -661,6 +695,7 @@ function getMoreHints() {
 			getby('hx' + y.toString()).addEventListener('click', hintClear, false);
 		}
 		//deduct more clues score
+		points('more clues');
 	}
 
 	else { 
@@ -681,6 +716,7 @@ function getMoreHints() {
 		}
 		
 		if (zeros.length > 0) { waves = zeros; }
+		if (zeros.length === 0) { points('hint'); } //hints for a zero are free
 		if (waves.length === 0) { return false; } // no waves to get hints for!
 
 		//pick a wave cell at random
@@ -692,6 +728,7 @@ function getMoreHints() {
 		getby(theHint).className = 'hc';
 		setTimeout(()=>{getby(theHint).className='';},550);
 
+		
 		checkWinConditions();
 	}	
 }
@@ -743,11 +780,45 @@ function hintClear(event) {
 			cell.innerHTML = flag;
 			cell.className = 'flag';
 			cell.removeEventListener('click', cellClick, false);
+			points('flag row of mines');
 		});
 	}
 
 	checkWinConditions();
 }
+
+
+function points(forWhat) { //POINTS!!
+	var multiplier = 1;
+	var morePoints = 1;
+	var speed = (400-seconds>0)?400-seconds:1;
+	const sat = width * height / mines; 
+	//const percent = Math.floor((mines*100) / (width * height)); 
+	const clue = Number.parseInt(forWhat);
+	
+	if (timerStart == false) { return score; } //no more points if time is stopped
+	
+	if (forWhat > 0) { multiplier = Number.parseInt(forWhat); morePoints = 1; } //strings that don't parse aren't greater than 0
+	switch (forWhat) {
+		case 'new':                 morePoints = 0; break;
+		case 'flagged':             morePoints = 2; break;
+		case 'flag row of mines':   morePoints = 2; break;
+		case 'dilemma cleared':     morePoints = 4; break;
+		case 'hint':                morePoints = -2; multiplier = Math.floor(sat); break; //difficulty penalty
+		case 'boom':                morePoints = -5; break;
+		case 'winning!':            morePoints = mines; multiplier = Math.floor((mines*100)/(width*height)); break; //difficulty bonus
+		case 'more clues':          morePoints = (sat < 4.21)?0:-2; multiplier = Math.floor((mines*100)/(width*height)); break; //more clues are free beyond pro 40x20x190
+	}
+	
+	const oldscore = score;
+	score += morePoints * multiplier * speed;
+	//floatingScore(morePoints * multiplier * speed);
+	
+	getby('s1').innerHTML = score.toString();
+	console.log('Score ', score, ' +', score-oldscore, forWhat);
+	return score;
+}
+
 
 function getby(id) { //tired of typing this
 	if (id != '') { return document.getElementById(id); }
@@ -814,9 +885,10 @@ var width = 1;
 var height = 1;
 var mines = 1;
 var hints = 0;
-var score = 0;
 var seconds = 1;
 var timerStart = false;
+var score = 0;
+var scoreHistory = { values: [], difficulty: [] };
 const oneSecond = 1000;
 const oneMinute = oneSecond * 60;
 const showHints = true;
