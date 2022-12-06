@@ -203,7 +203,7 @@ table#board {
 
 div.status { 
 	padding: 10px;
-	height: 28px;
+	height: 48px;
 	margin-top: 16px;
 	margin-bottom: 16px; 
 	justify-content: center;
@@ -216,17 +216,16 @@ div.status {
 #output, 
 #score, 
 #timer {
-	x-text-align: center;
 	height: 26px;
 	display: inline-block;
 	border: 0px dashed red;
 }
 
-#output { width: calc(100% - 228px); align-self: stretch; text-align: center;}
+#output { width: calc(100% - 268px); align-self: stretch; text-align: center;}
 #score, #timer {font-size: smaller;}
 
-#score { width: 100px; align-self: flex-start; text-align: left;  }
-#timer { width: 100px; align-self: flex-end; text-align: right; }
+#score { width: 120px; align-self: flex-start; text-align: left;  }
+#timer { width: 120px; align-self: flex-end; text-align: right; }
 
 #board td, td.hint {
 	height: 22px;
@@ -791,7 +790,7 @@ function hintClear(event) {
 function points(forWhat) { //POINTS!!
 	var multiplier = 1;
 	var morePoints = 1;
-	var speed = (400-seconds>0)?400-seconds:1;
+	var speed = ((mines*4)-seconds>0)?(mines*4)-seconds:1;
 	const sat = width * height / mines; 
 	//const percent = Math.floor((mines*100) / (width * height)); 
 	const clue = Number.parseInt(forWhat);
@@ -815,7 +814,7 @@ function points(forWhat) { //POINTS!!
 	//floatingScore(morePoints * multiplier * speed);
 	
 	getby('s1').innerHTML = score.toString();
-	console.log('Score ', score, ' +', score-oldscore, forWhat);
+	console.log(`Score ${score} + ${score-oldscore} ${forWhat} ${(speed>1)?`(+${speed} speed bonus)`:''}`);
 	return score;
 }
 
@@ -831,7 +830,7 @@ function myMain() {
     //const minutes = time.getMinutes();
     //const hour = time.getHours();
     if (timerStart) { 
-		getby('t1').innerHTML = seconds.toString();
+		getby('t1').innerHTML = `${(seconds>60)?~~(seconds/60) + ' min ':''}${seconds%60}`;
 		if (document.hasFocus()) { seconds++; }
 	}
 	return true;
