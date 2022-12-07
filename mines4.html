@@ -493,10 +493,9 @@ function cellClick(event) {
         output.style.display = 'inline-block';
         output.innerHTML = explosion + "BOOM! You lost!" + explosion;
     
-        logScores('boom');
-        
-    
+        logScores('boom'); 
     }
+    
     else {
         if (this.innerHTML == String.fromCodePoint(0x1F30A)) { //points for being right when you click a wave
             points(isMine);
@@ -525,7 +524,7 @@ function logScores(winorlose){
 }
 
 
-function checkWinConditions() {
+function checkWinConditions(e) {
     let waveCount = 0;
     let flagCount = 0;
     document.querySelectorAll('#board td').forEach((td)=>{
