@@ -284,6 +284,7 @@
                 <li><input type="radio" name="difficulty" id=w7 onchange="radio(this)"><label for=w7>Expert</label> (30 x 16 x 99)</li>
                 <li><input type="radio" name="difficulty" id=w8 onchange="radio(this)"><label for=w8>Pro</label> (40 x 20 x 190)</li>
                 <li><input type="radio" name="difficulty" id=w9 onchange="radio(this)"><label for=w9>iPhone</label> (11 x 17, doesn't alter Saturation)</li>
+                <li><input type="radio" name="difficulty" id=w10 onchange="radio(this)"><label for=w10>Tall Pro</label> (12 x 30 x 90)</li>
             </ul>
             <button style="margin-left: 0px;" id="b1" onclick="newBoard()">Generate new minefield</button>
         </fieldset>
@@ -364,6 +365,13 @@ function radio(input) {
             height.value = 17;
             area = width.value * height.value;
             //satur.value = (190 * 100) / area
+        break;
+
+        case 'w10': //a mode I like for iPhone
+            width.value = 12;
+            height.value = 30;
+            area = width.value * height.value;
+            satur.value = (90 * 100) / area
         break;
     }
 }
@@ -504,7 +512,8 @@ function cellClick(event) {
         //count all the mines around this and display that number
         mineSweep(this.id);
         
-        if (this.innerHTML === '0') { 
+        //if (this.innerHTML === '0') { 
+        if (isMine === 0) { 
             recursiveClear(adjacentTo(id2index(this.id)));
         } else {  markFlags(this.innerHTML, adjacentTo(id2index(this.id))); }
     
@@ -595,17 +604,21 @@ function mineSweep(id) {
     const cell = getby(id);
     const mineCount = allMines[index];
     
-    if (mineCount == 0) {
-        //cell.removeEventListener('click', cellClick, false);
-        //cell.style.backgroundColor = '#596773'; 
-    }
-    
     if (cell.className === 'hc') { points('dilemma cleared'); } //bonus for solving a blocking pair
     
     cell.style.color = colors[mineCount];
     cell.className = '';
     cell.innerHTML = mineCount.toString();
+
+    if (mineCount == 0) {
+        //cell.removeEventListener('click', cellClick, false);
+        //cell.style.backgroundColor = '#596773';
+        let i = Math.floor(Math.random() * sealife.length)
+        cell.innerHTML = sealife[i];
+        setTimeout(()=>{cell.innerHTML = mineCount.toString()}, 2000 * (1 + (i/53)));
+    }
 }
+
 
 
 function recursiveClear(neighbors) {
@@ -751,7 +764,7 @@ function getMoreHints() {
         
         document.querySelectorAll('#board td.hc').forEach((TD)=>{TD.className = '';});
         getby(theHint).className = 'hc';
-        setTimeout(()=>{getby(theHint).className='';},890);
+        setTimeout(()=>{getby(theHint).className='';},1212);
 
         
         checkWinConditions();
@@ -795,11 +808,13 @@ function hintClear(event) {
     
     if (this.innerHTML === '0' || mineCount === flagCount) { //you'll only need to do this once for zeros
         this.removeEventListener('click', hintClear, false);
+        this.innerHTML = '&nbsp;';
         waves.forEach ((id)=>{
             mineSweep(id);
         });
     } else if (waves.length + flagCount === mineCount) { //every wave is a mine!
         this.removeEventListener('click', hintClear, false);
+        this.innerHTML = '&nbsp;';
         waves.forEach ((id)=>{
             let cell = getby(id);
             cell.innerHTML = flag;
@@ -925,6 +940,11 @@ const flag = "&#x1F6A9;";
 const grats = "&#x1F389;";
 const broom = "&#x1F9f9;";
 const check = "&#x2705;";
+//const sealife = ["🐟", "🐠", "🦀", "🐙", "🐬", "🐳", "🐡", "🦑", "🦈", "🦭", "🪸", "🦦", "🐋", "🦞", "🦐"];
+//var sealifeEntities = [];
+//sealife.forEach((fs)=>{sealifeEntities.push(`&#x${ fs.codePointAt(0).toString(16) };`)});
+const sealife = ['&#x1f41f;', '&#x1f420;', '&#x1f980;', '&#x1f419;', '&#x1f42c;', '&#x1f433;', '&#x1f421;',
+    '&#x1f991;', '&#x1f988;', '&#x1f9ad;', '&#x1fab8;', '&#x1f9a6;', '&#x1f40b;', '&#x1f99e;', '&#x1f990;'];
 
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const ac = new AudioContext();
