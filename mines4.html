@@ -298,7 +298,13 @@
     
 <div class="board">
     <table id="board">
-    <th>Future development: mines left, score here, timer here</th>
+    <th>
+        Choose a difficulty and hit 'Generate'.<br/><br/>
+        Tips:<br/>
+        Saturation is the percentage of boxes that have mines.<br/>
+        The faster you clear, the higher the score.<br/>
+        Clues and hints cost more points earlier on and with lower saturation. 
+    </th>
     </table>
 </div>		
 
@@ -608,14 +614,15 @@ function mineSweep(id) {
     
     cell.style.color = colors[mineCount];
     cell.className = '';
-    cell.innerHTML = mineCount.toString();
-
+    
     if (mineCount == 0) {
-        //cell.removeEventListener('click', cellClick, false);
-        //cell.style.backgroundColor = '#596773';
-        let i = Math.floor(Math.random() * sealife.length)
-        cell.innerHTML = sealife[i];
-        setTimeout(()=>{cell.innerHTML = mineCount.toString()}, 2000 * (1 + (i/53)));
+        if (cell.innerHTML === String.fromCodePoint(0x1F30A)) { //sealife is under waves :)
+            let i = Math.floor(Math.random() * sealife.length);
+            cell.innerHTML = sealife[i];
+            setTimeout(()=>{cell.innerHTML = mineCount.toString()}, 2000 * (1 + (i/53)));
+        }
+    } else {
+        cell.innerHTML = mineCount.toString();
     }
 }
 
@@ -623,7 +630,7 @@ function mineSweep(id) {
 
 function recursiveClear(neighbors) {
     for (const i of neighbors) {
-        if (getby(index2id(i)).innerHTML == String.fromCodePoint(0x1F30A)) {
+        if (getby(index2id(i)).innerHTML == String.fromCodePoint(0x1F30A)) { //if cell is a wave
             mineSweep(index2id(i));
             if (allMines[i] == 0) {
                 recursiveClear(adjacentTo(i));
@@ -741,7 +748,7 @@ function getMoreHints() {
         let waves = [];
         let zeros = [];
         TDs = document.querySelectorAll('#board td.hc');
-        if (TDs.length === 0) { TDs = document.querySelectorAll('#board td'); }
+        if (TDs.length < 2) { TDs = document.querySelectorAll('#board td'); }
         for (const cell of TDs) { 
             if (cell.innerHTML === String.fromCodePoint(0x1F30A)) {
                 if (allMines[id2index(cell.id)] != -1) {
@@ -764,7 +771,7 @@ function getMoreHints() {
         
         document.querySelectorAll('#board td.hc').forEach((TD)=>{TD.className = '';});
         getby(theHint).className = 'hc';
-        setTimeout(()=>{getby(theHint).className='';},1212);
+        setTimeout(()=>{getby(theHint).className='';},2212);
 
         
         checkWinConditions();
