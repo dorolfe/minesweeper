@@ -272,7 +272,7 @@
           >
         </li>
         <li>
-          <input type="range" step="1" min="3" max="30" id="w2" /><label
+          <input type="range" step="1" min="3" max="40" id="w2" /><label
             for="w2"
             >Height</label
           >
@@ -338,6 +338,14 @@
             id="w10"
             onchange="radio(this)"
           /><label for="w10">Tall Pro</label> (12 x 30 x 90)
+        </li>
+        <li>
+          <input
+            type="radio"
+            name="difficulty"
+            id="w11"
+            onchange="radio(this)"
+          /><label for="w10">Huge Pro</label> (33 x 40 x ?)
         </li>
       </ul>
       <button style="margin-left: 0px" id="b1" onclick="newBoard()">
@@ -432,6 +440,13 @@
           case "w10": //a mode I like for iPhone
             width.value = 12;
             height.value = 30;
+            area = width.value * height.value;
+            satur.value = (90 * 100) / area;
+            break;
+
+          case "w11": //the biggest portrait layout
+            width.value = 33;
+            height.value = 40;
             area = width.value * height.value;
             satur.value = (90 * 100) / area;
             break;
